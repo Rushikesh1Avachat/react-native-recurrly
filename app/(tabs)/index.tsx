@@ -3,7 +3,7 @@ import {FlatList, Image, Pressable, Text, View} from "react-native";
 import {SafeAreaView as RNSafeAreaView} from "react-native-safe-area-context";
 import { styled } from "nativewind";
 import images from "@/constants/images";
-import {HOME_BALANCE} from "@/constants/data";
+import {HOME_BALANCE, UPCOMING_SUBSCRIPTIONS} from "@/constants/data";
 import {icons} from "@/constants/icons";
 import {formatCurrency} from "@/lib/utils";
 import dayjs from "dayjs";
@@ -24,15 +24,20 @@ export default function App() {
     const [isModalVisible, setIsModalVisible] = useState(false);
     const { subscriptions, addSubscription } = useSubscriptionStore();
 
-    // Get upcoming subscriptions (active subscriptions with renewal date within next 7 days)
     const upcomingSubscriptions = useMemo(() => {
         const now = dayjs();
-        const nextWeek = now.add(7, 'days');
-        return subscriptions.filter(sub =>
-            sub.status === 'active' &&
-            dayjs(sub.renewalDate).isAfter(now) &&
-            dayjs(sub.renewalDate).isBefore(nextWeek)
-        ).sort((a, b) => dayjs(a.renewalDate).diff(dayjs(b.renewalDate)));
+        const next30Days = now.add(30, "days");
+
+        return subscriptions.filter((sub) => {
+            const date = dayjs(sub.renewalDate);
+
+            return (
+                sub?.status?.toLowerCase() === "active" &&
+                date.isValid() &&
+                date.isAfter(now) &&
+                date.isBefore(next30Days)
+            );
+        });
     }, [subscriptions]);
 
     const handleSubscriptionPress = (item: Subscription) => {
@@ -59,67 +64,75 @@ export default function App() {
 
     return (
         <SafeAreaView className="flex-1 bg-background p-5">
-                <FlatList
-                    ListHeaderComponent={() => (
-                        <>
-                            <View className="home-header">
-                                <View className="home-user">
-                                    <Image
-                                        source={user?.imageUrl ? { uri: user.imageUrl } : images.avatar}
-                                        className="home-avatar"
-                                    />
-                                    <Text className="home-user-name">{displayName}</Text>
-                                </View>
-
-                                <Pressable onPress={() => setIsModalVisible(true)}>
-                                    <Image source={icons.add} className="home-add-icon" />
-                                </Pressable>
-                            </View>
-
-                            <View className="home-balance-card">
-                                <Text className="home-balance-label">Balance</Text>
-
-                                <View className="home-balance-row">
-                                    <Text className="home-balance-amount">
-                                        {formatCurrency(HOME_BALANCE.amount)}
-                                    </Text>
-                                    <Text className="home-balance-date">
-                                        {dayjs(HOME_BALANCE.nextRenewalDate).format('MM/DD')}
-                                    </Text>
-                                </View>
-                            </View>
-
-                            <View className="mb-5">
-                                <ListHeading title="Upcoming" />
-
-                                <FlatList
-                                    data={upcomingSubscriptions}
-                                    renderItem={({ item }) => (<UpcomingSubscriptionCard {...item} />)}
-                                    keyExtractor={(item) => item.id}
-                                    horizontal
-                                    showsHorizontalScrollIndicator={false}
-                                    ListEmptyComponent={<Text className="home-empty-state">No upcoming renewals yet.</Text>}
+            <FlatList
+                ListHeaderComponent={() => (
+                    <>
+                        <View className="home-header">
+                            <View className="home-user">
+                                <Image
+                                    source={user?.imageUrl ? { uri: user.imageUrl } : images.avatar}
+                                    className="home-avatar"
                                 />
+                                <Text className="home-user-name">{displayName}</Text>
                             </View>
 
-                            <ListHeading title="All Subscriptions" />
-                        </>
-                    )}
-                    data={subscriptions}
-                    keyExtractor={(item) => item.id}
-                    renderItem={({ item }) => (
-                        <SubscriptionCard
-                            {...item}
-                            expanded={expandedSubscriptionId === item.id}
-                            onPress={() => handleSubscriptionPress(item)}
-                        />
-                    )}
-                    extraData={expandedSubscriptionId}
-                    ItemSeparatorComponent={() => <View className="h-4" />}
-                    showsVerticalScrollIndicator={false}
-                    ListEmptyComponent={<Text className="home-empty-state">No subscriptions yet.</Text>}
-                    contentContainerClassName="pb-30"
-                />
+                            <Pressable onPress={() => setIsModalVisible(true)}>
+                                <Image source={icons.add} className="home-add-icon" />
+                            </Pressable>
+                        </View>
+
+                        <View className="home-balance-card">
+                            <Text className="home-balance-label">Balance</Text>
+
+                            <View className="home-balance-row">
+                                <Text className="home-balance-amount">
+                                    {formatCurrency(HOME_BALANCE.amount)}
+                                </Text>
+                                <Text className="home-balance-date">
+                                    {dayjs(HOME_BALANCE.nextRenewalDate).format('MM/DD')}
+                                </Text>
+                            </View>
+                        </View>
+
+                        <View className="mb-5">
+                            <ListHeading title="Upcoming" />
+                            <FlatList
+                                data={UPCOMING_SUBSCRIPTIONS}
+                                renderItem={({ item }) => (
+                                    <UpcomingSubscriptionCard {...item} />
+                                )}
+                                keyExtractor={(item) => item.id}
+                                horizontal
+                                showsHorizontalScrollIndicator={false}
+                                contentContainerStyle={{ paddingHorizontal: 4 }}
+                                ItemSeparatorComponent={() => <View style={{ width: 12 }} />}
+                                ListEmptyComponent={
+                                    <Text className="home-empty-state">
+                                        No upcoming renewals yet.
+                                    </Text>
+                                }
+                            />
+
+                        </View>
+
+                        <ListHeading title="All Subscriptions" />
+                    </>
+                )}
+                data={subscriptions}
+                keyExtractor={(item) => item.id}
+                renderItem={({ item }) => (
+                    <SubscriptionCard
+                        {...item}
+                        expanded={expandedSubscriptionId === item.id}
+                        onPress={() => handleSubscriptionPress(item)}
+                    />
+                )}
+                extraData={expandedSubscriptionId}
+                ItemSeparatorComponent={() => <View className="h-4" />}
+                showsVerticalScrollIndicator={false}
+                ListEmptyComponent={<Text className="home-empty-state">No subscriptions yet.</Text>}
+                contentContainerClassName="pb-30"
+            />
 
             <CreateSubscriptionModal
                 visible={isModalVisible}
