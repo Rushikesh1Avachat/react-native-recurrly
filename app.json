@@ -1,19 +1,17 @@
 {
   "expo": {
-    "name": "Recurrly",
+    "name": "react_native-recurrly",
     "slug": "react_native-recurrly",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icons/logo.png",
+    "icon": "./assets/images/icon.png",
     "scheme": "reactnativerecurrly",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "bundleIdentifier": "com.rushikesh.recurrly",
       "supportsTablet": true
     },
     "android": {
-      "package": "com.rushikesh.recurrly",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -32,7 +30,7 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-pattern.png",
+          "image": "./assets/images/splash-icon.png",
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff",
@@ -55,8 +53,7 @@
         }
       ],
       "@clerk/expo",
-      "expo-secure-store",
-      "expo-localization"
+      "expo-secure-store"
     ],
     "experiments": {
       "typedRoutes": true,
@@ -64,3 +61,7 @@
     }
   }
 }
+
+
+
+

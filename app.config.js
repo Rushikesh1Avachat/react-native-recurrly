@@ -2,28 +2,27 @@ const appJson = require('./app.json');
 
 export default {
     expo: {
-        ...appJson.expo,
+        name: "Recurrly",
+        slug: "react_native-recurrly",
+        version: "1.0.0",
+
+        android: {
+            package: "com.rushikesh.recurrly", // ✅ REQUIRED
+        },
 
         ios: {
-            ...appJson.expo?.ios,
-
-            bundleIdentifier: "com.avachatrushikesh.recurrly",
-
-            // ✅ MOVE THIS HERE
+            bundleIdentifier: "com.rushikesh.recurrly",
             infoPlist: {
                 ITSAppUsesNonExemptEncryption: false,
             },
         },
 
         extra: {
-            ...(appJson.expo?.extra || {}),
-
-            posthogProjectToken: process.env.POSTHOG_PROJECT_TOKEN,
-            posthogHost: process.env.POSTHOG_HOST,
-
             eas: {
                 projectId: "41df48ae-a7ac-4541-9184-e07ef8a7ea0a",
             },
+            posthogProjectToken: process.env.POSTHOG_PROJECT_TOKEN,
+            posthogHost: process.env.POSTHOG_HOST,
         },
     },
 };
