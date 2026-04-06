@@ -7,7 +7,15 @@ export default {
         version: "1.0.0",
 
         android: {
-            package: "com.rushikesh.recurrly", // ✅ REQUIRED
+            package: "com.rushikesh.recurrly",
+            // Fix for the mergeReleaseJavaResource duplicate file error
+            packagingOptions: {
+                resources: {
+                    pickFirsts: [
+                        'META-INF/versions/9/OSGI-INF/MANIFEST.MF'
+                    ]
+                }
+            }
         },
 
         ios: {
